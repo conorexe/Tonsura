@@ -1,0 +1,23 @@
+{
+  "name": "@tonsura/db",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@tonsura/validators": "workspace:*",
+    "drizzle-orm": "^0.31.0",
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.22.0"
+  }
+}

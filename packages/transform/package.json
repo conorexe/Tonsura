@@ -1,0 +1,11 @@
+{
+  "name": "@tonsura/transform",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@tonsura/validators": "workspace:*"
+  }
+}

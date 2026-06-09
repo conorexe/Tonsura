@@ -1,0 +1,26 @@
+{
+  "name": "tonsura",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "start": "turbo start",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:push": "turbo db:push",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "test": "tsx --test apps/gateway/src/lib/token-extractor.test.ts apps/gateway/src/lib/binding-router.test.ts apps/gateway/src/lib/ratelimit.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "prettier": "^3.3.0",
+    "tsx": "^4.16.2",
+    "turbo": "^2.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@10.34.1"
+}

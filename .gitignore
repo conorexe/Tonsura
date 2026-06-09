@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+.next
+.wrangler
+out
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Turbo
+.turbo
+
+# Misc
+.DS_Store
+*.log
+.vercel
+
+# Drizzle
+drizzle/*.sql
