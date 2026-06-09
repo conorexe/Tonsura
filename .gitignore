@@ -24,3 +24,6 @@ out
 
 # Drizzle
 drizzle/*.sql
+
+# TypeScript incremental build info
+*.tsbuildinfo
