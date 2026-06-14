@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Auto-slugify a feature name into a URL-safe slug as the user types, unless
-// they've manually edited the slug field.
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -12,6 +10,9 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+const input =
+  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black";
 
 export function CreateFeatureForm() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function CreateFeatureForm() {
     });
 
     if (!res.ok) {
-      setError("Failed to create feature. Slug may already be in use.");
+      setError("Slug may already be in use.");
       setLoading(false);
       return;
     }
@@ -52,43 +53,56 @@ export function CreateFeatureForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-      <input
-        className="border rounded-lg px-3 py-2 text-sm"
-        placeholder="Feature name (e.g. Voice Assistant)"
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-          if (!slugEdited) setSlug(slugify(e.target.value));
-        }}
-        required
-      />
-      <input
-        className="border rounded-lg px-3 py-2 text-sm"
-        placeholder="Slug (e.g. voice-assistant)"
-        value={slug}
-        onChange={(e) => {
-          setSlug(e.target.value);
-          setSlugEdited(true);
-        }}
-        pattern="[a-z0-9-]+"
-        title="lowercase letters, numbers and hyphens only"
-        required
-      />
-      <input
-        className="col-span-2 border rounded-lg px-3 py-2 text-sm"
-        placeholder="Description (optional)"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      {error && <p className="col-span-2 text-red-600 text-sm">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="col-span-2 bg-black text-white py-2 rounded-lg text-sm hover:bg-gray-800 disabled:opacity-50"
-      >
-        {loading ? "Creating..." : "Create Feature"}
-      </button>
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3 max-w-xl">
+      <div>
+        <label className="block text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+          Name
+        </label>
+        <input
+          className={input}
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (!slugEdited) setSlug(slugify(e.target.value));
+          }}
+          required
+        />
+      </div>
+      <div>
+        <label className="block text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+          Slug
+        </label>
+        <input
+          className={input}
+          value={slug}
+          onChange={(e) => {
+            setSlug(e.target.value);
+            setSlugEdited(true);
+          }}
+          pattern="[a-z0-9-]+"
+          required
+        />
+      </div>
+      <div className="col-span-2">
+        <label className="block text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+          Description
+        </label>
+        <input
+          className={input}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+      {error && <p className="col-span-2 text-red-600 text-xs">{error}</p>}
+      <div className="col-span-2">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-black text-white px-5 py-2 text-sm hover:bg-gray-800 disabled:opacity-50"
+        >
+          {loading ? "Creating" : "Create feature"}
+        </button>
+      </div>
     </form>
   );
 }

@@ -31,33 +31,25 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-xl border p-8 w-full max-w-sm space-y-4"
-      >
-        <div>
-          <h1 className="text-2xl font-bold">Tonsura</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Enter the admin password to continue.
-          </p>
-        </div>
+    <main className="min-h-screen flex items-center justify-center px-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+        <h1 className="text-sm font-semibold tracking-tight">tonsura</h1>
         <input
           type="password"
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          placeholder="Admin password"
+          className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoFocus
           required
         />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-xs">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black text-white py-2 rounded-lg text-sm hover:bg-gray-800 disabled:opacity-50"
+          className="w-full bg-black text-white py-2 text-sm hover:bg-gray-800 disabled:opacity-50"
         >
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? "Signing in" : "Sign in"}
         </button>
       </form>
     </main>

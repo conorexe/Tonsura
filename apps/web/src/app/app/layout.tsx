@@ -1,6 +1,16 @@
 import { AccountMenu } from "@/components/AccountMenu";
 import Link from "next/link";
 
+const nav: { href: string; label: string }[] = [
+  { href: "/app/dashboard", label: "Dashboard" },
+  { href: "/app/insights", label: "Insights" },
+  { href: "/app/analytics", label: "Analytics" },
+  { href: "/app/providers", label: "API keys" },
+  { href: "/app/features", label: "Features" },
+  { href: "/app/products", label: "Products" },
+  { href: "/app/keys", label: "Issued keys" },
+];
+
 export default function AppLayout({
   children,
 }: {
@@ -8,35 +18,24 @@ export default function AppLayout({
 }) {
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 border-r bg-white p-4 flex flex-col gap-1">
-        <div className="font-bold text-lg mb-4">Tonsura</div>
-        <NavLink href="/app/dashboard">Dashboard</NavLink>
-        <NavLink href="/app/insights">Insights</NavLink>
-        <NavLink href="/app/providers">API Keys</NavLink>
-        <NavLink href="/app/features">Features</NavLink>
-        <NavLink href="/app/products">Products</NavLink>
-        <NavLink href="/app/keys">Keys</NavLink>
-        <NavLink href="/app/analytics">Analytics</NavLink>
+      <aside className="w-52 border-r border-gray-200 px-3 py-5 flex flex-col">
+        <div className="px-2 mb-5 text-sm font-semibold tracking-tight">
+          tonsura
+        </div>
+        <nav className="flex flex-col gap-px">
+          {nav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="px-2 py-1.5 rounded text-[13px] text-gray-700 hover:bg-gray-100"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         <AccountMenu />
       </aside>
-      <main className="flex-1 p-8 bg-gray-50">{children}</main>
+      <main className="flex-1 px-10 py-8 max-w-5xl">{children}</main>
     </div>
-  );
-}
-
-function NavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 text-sm"
-    >
-      {children}
-    </Link>
   );
 }

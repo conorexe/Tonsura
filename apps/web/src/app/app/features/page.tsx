@@ -1,7 +1,6 @@
 import { getDb } from "@/lib/db";
 import { listProjects, listProducts } from "@tonsura/db";
 import { CreateFeatureForm } from "@/components/CreateFeatureForm";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +11,6 @@ export default async function FeaturesPage() {
     listProducts(db),
   ]);
 
-  // Group products under their feature so each card shows its alias-routed
-  // bindings (the upstreams a feature key for this feature can reach).
   const productsByProject = new Map<string, typeof products>();
   for (const p of products) {
     if (!p.projectId) continue;
@@ -23,74 +20,45 @@ export default async function FeaturesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Features</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          A feature groups one or more root APIs. Issue a single{" "}
-          <Link href="/app/keys" className="text-blue-600 hover:underline">
-            feature key
-          </Link>{" "}
-          and the gateway routes{" "}
-          <code className="text-xs">/v1/&#123;alias&#125;/…</code> to the right
-          upstream by each product&apos;s path alias.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <h1 className="text-base font-semibold">Features</h1>
 
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="font-medium">New feature</h2>
-        <CreateFeatureForm />
-      </div>
-
-      <div className="space-y-4">
+      <section className="space-y-6">
         {projects.length === 0 && (
-          <p className="bg-white rounded-xl border p-6 text-gray-500 text-sm">
-            No features yet. Create one above, then add products with a path
-            alias to bind root APIs into it.
-          </p>
+          <p className="text-gray-500 text-sm">No features yet.</p>
         )}
         {projects.map((proj) => {
           const bindings = productsByProject.get(proj.id) ?? [];
           return (
-            <div key={proj.id} className="bg-white rounded-xl border p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{proj.name}</p>
-                  <p className="text-xs text-gray-500 font-mono">{proj.slug}</p>
-                </div>
-                <Link
-                  href="/app/products/new"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  + Add product
-                </Link>
+            <div
+              key={proj.id}
+              className="border-b border-gray-200 pb-5 last:border-b-0"
+            >
+              <div className="flex items-baseline justify-between">
+                <p className="text-sm font-medium">{proj.name}</p>
+                <span className="text-xs text-gray-500 font-mono">
+                  {proj.slug}
+                </span>
               </div>
               {bindings.length === 0 ? (
-                <p className="mt-3 text-sm text-amber-600">
-                  No products bound yet. Add a product to this feature with a
-                  path alias to make it routable.
+                <p className="mt-2 text-xs text-gray-500">
+                  No products bound.
                 </p>
               ) : (
-                <ul className="mt-3 divide-y border-t">
+                <ul className="mt-3 space-y-1">
                   {bindings.map((b) => (
                     <li
                       key={b.id}
-                      className="py-2 flex items-center justify-between text-sm"
+                      className="flex items-center justify-between text-sm"
                     >
-                      <span className="font-medium">{b.name}</span>
-                      <span className="flex items-center gap-3">
+                      <span>{b.name}</span>
+                      <span className="flex items-center gap-3 text-xs text-gray-500">
                         {b.pathAlias ? (
-                          <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                            /v1/{b.pathAlias}/…
-                          </code>
+                          <code className="font-mono">/v1/{b.pathAlias}</code>
                         ) : (
-                          <span className="text-xs text-amber-600">
-                            no alias, not routable
-                          </span>
+                          <span>no alias</span>
                         )}
-                        <span className="text-xs text-gray-400">
-                          {b.unitType}
-                        </span>
+                        <span>{b.unitType}</span>
                       </span>
                     </li>
                   ))}
@@ -99,7 +67,12 @@ export default async function FeaturesPage() {
             </div>
           );
         })}
-      </div>
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium mb-4">New feature</h2>
+        <CreateFeatureForm />
+      </section>
     </div>
   );
 }

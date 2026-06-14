@@ -12,7 +12,10 @@ import { FeatureSpendChart } from "@/components/charts/FeatureSpendChart";
 export const dynamic = "force-dynamic";
 
 const usd = (n: number) =>
-  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  `$${n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
 export default async function InsightsPage() {
   const db = getDb();
@@ -32,170 +35,180 @@ export default async function InsightsPage() {
   const topFeature = features[0];
 
   const stats = [
-    { label: "Spend (30d)", value: usd(totalCost) },
-    { label: "Revenue (30d)", value: usd(totalRevenue) },
+    { label: "Spend", value: usd(totalCost) },
+    { label: "Revenue", value: usd(totalRevenue) },
     {
-      label: "Margin (30d)",
+      label: "Margin",
       value: usd(totalMargin),
-      accent: totalMargin >= 0 ? "text-green-700" : "text-red-600",
+      negative: totalMargin < 0,
     },
-    { label: "Top cost driver", value: topFeature?.feature || "—" },
+    { label: "Top feature", value: topFeature?.feature || "" },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Insights</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Where your API spend goes, broken down by feature, root API, end
-          user, and tier.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <h1 className="text-base font-semibold">Insights</h1>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 border-y border-gray-200 divide-x divide-gray-200">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border p-4">
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.accent ?? ""}`}>
+          <div key={s.label} className="py-3 px-4">
+            <p className="text-[11px] uppercase tracking-wider text-gray-500">
+              {s.label}
+            </p>
+            <p
+              className={`text-lg font-medium mt-1 tabular-nums ${s.negative ? "text-red-600" : ""}`}
+            >
               {s.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border p-6">
-        <h2 className="text-sm font-medium text-gray-500 mb-4">
-          Spend by feature (30d)
-        </h2>
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-sm font-medium">Spend by feature</h2>
+          <span className="text-xs text-gray-500">Last 30 days</span>
+        </div>
         {features.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No usage yet. Proxy a call through the gateway or send a pixel
-            event and it shows up here.
-          </p>
+          <p className="text-sm text-gray-500">No usage yet.</p>
         ) : (
           <FeatureSpendChart data={features} />
         )}
-      </div>
+      </section>
 
-      <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="p-4 border-b font-medium text-sm">
-          Spend by root API (30d)
-        </div>
-        <div className="divide-y">
-          <div className="px-4 py-2 grid grid-cols-6 text-xs text-gray-400 uppercase tracking-wide">
-            <span className="col-span-2">Root API</span>
-            <span className="text-right">Requests</span>
-            <span className="text-right">Cost</span>
-            <span className="text-right">Revenue</span>
-            <span className="text-right">Margin</span>
-          </div>
-          {providers.length === 0 && (
-            <p className="px-4 py-4 text-sm text-gray-500">No usage yet.</p>
-          )}
-          {providers.map((p) => (
-            <div
-              key={p.providerId}
-              className="px-4 py-2 grid grid-cols-6 text-sm items-center"
-            >
-              <span className="col-span-2 font-medium">{p.name}</span>
-              <span className="text-right tabular-nums">
-                {p.requests.toLocaleString()}
-              </span>
-              <span className="text-right tabular-nums">{usd(p.cost)}</span>
-              <span className="text-right tabular-nums">{usd(p.revenue)}</span>
-              <span
-                className={`text-right tabular-nums font-medium ${p.margin >= 0 ? "text-green-700" : "text-red-600"}`}
-              >
-                {usd(p.margin)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <section>
+        <h2 className="text-sm font-medium mb-3">Spend by root API</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+              <th className="font-normal py-2">API</th>
+              <th className="font-normal py-2 text-right">Requests</th>
+              <th className="font-normal py-2 text-right">Cost</th>
+              <th className="font-normal py-2 text-right">Revenue</th>
+              <th className="font-normal py-2 text-right">Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {providers.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-4 text-gray-500">
+                  No usage yet.
+                </td>
+              </tr>
+            )}
+            {providers.map((p) => (
+              <tr key={p.providerId} className="border-b border-gray-100">
+                <td className="py-2.5">{p.name}</td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {p.requests.toLocaleString()}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {usd(p.cost)}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {usd(p.revenue)}
+                </td>
+                <td
+                  className={`py-2.5 text-right tabular-nums ${p.margin < 0 ? "text-red-600" : ""}`}
+                >
+                  {usd(p.margin)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
-      <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="p-4 border-b font-medium text-sm">
-          Margin by tier (30d)
-        </div>
-        <div className="divide-y">
-          <div className="px-4 py-2 grid grid-cols-6 text-xs text-gray-400 uppercase tracking-wide">
-            <span>Tier</span>
-            <span className="text-right">Users</span>
-            <span className="text-right">Requests</span>
-            <span className="text-right">Cost</span>
-            <span className="text-right">Revenue</span>
-            <span className="text-right">Margin</span>
-          </div>
-          {plans.length === 0 && (
-            <p className="px-4 py-4 text-sm text-gray-500">
-              No usage yet. Tag calls with X-Tonsura-Plan (proxy) or plan
-              (pixel) to split margin per tier.
-            </p>
-          )}
-          {plans.map((t) => (
-            <div
-              key={t.plan || "(untagged)"}
-              className="px-4 py-2 grid grid-cols-6 text-sm items-center"
-            >
-              <span className="font-medium capitalize">
-                {t.plan || "(untagged)"}
-              </span>
-              <span className="text-right tabular-nums">{t.users}</span>
-              <span className="text-right tabular-nums">
-                {t.requests.toLocaleString()}
-              </span>
-              <span className="text-right tabular-nums">{usd(t.cost)}</span>
-              <span className="text-right tabular-nums">{usd(t.revenue)}</span>
-              <span
-                className={`text-right tabular-nums font-medium ${t.margin >= 0 ? "text-green-700" : "text-red-600"}`}
+      <section>
+        <h2 className="text-sm font-medium mb-3">Margin by tier</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+              <th className="font-normal py-2">Tier</th>
+              <th className="font-normal py-2 text-right">Users</th>
+              <th className="font-normal py-2 text-right">Requests</th>
+              <th className="font-normal py-2 text-right">Cost</th>
+              <th className="font-normal py-2 text-right">Revenue</th>
+              <th className="font-normal py-2 text-right">Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plans.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-4 text-gray-500">
+                  No tiered usage.
+                </td>
+              </tr>
+            )}
+            {plans.map((t) => (
+              <tr
+                key={t.plan || "(untagged)"}
+                className="border-b border-gray-100"
               >
-                {usd(t.margin)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+                <td className="py-2.5 capitalize">{t.plan || "(untagged)"}</td>
+                <td className="py-2.5 text-right tabular-nums">{t.users}</td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {t.requests.toLocaleString()}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {usd(t.cost)}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {usd(t.revenue)}
+                </td>
+                <td
+                  className={`py-2.5 text-right tabular-nums ${t.margin < 0 ? "text-red-600" : ""}`}
+                >
+                  {usd(t.margin)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
-      <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="p-4 border-b font-medium text-sm">
-          Spend by end-user (30d)
-        </div>
-        <div className="divide-y">
-          <div className="px-4 py-2 grid grid-cols-6 text-xs text-gray-400 uppercase tracking-wide">
-            <span className="col-span-2">End user</span>
-            <span className="text-right">Features</span>
-            <span className="text-right">Requests</span>
-            <span className="text-right">Cost</span>
-            <span className="text-right">Margin</span>
-          </div>
-          {users.length === 0 && (
-            <p className="px-4 py-4 text-sm text-gray-500">
-              No attributed traffic yet. Send X-Tonsura-User on proxy calls or
-              endUser on pixel events to split spend per user.
-            </p>
-          )}
-          {users.map((u) => (
-            <div
-              key={u.endUser}
-              className="px-4 py-2 grid grid-cols-6 text-sm items-center"
-            >
-              <span className="col-span-2 font-mono text-xs truncate">
-                {u.endUser}
-              </span>
-              <span className="text-right tabular-nums">{u.features}</span>
-              <span className="text-right tabular-nums">
-                {u.requests.toLocaleString()}
-              </span>
-              <span className="text-right tabular-nums">{usd(u.cost)}</span>
-              <span
-                className={`text-right tabular-nums font-medium ${u.margin >= 0 ? "text-green-700" : "text-red-600"}`}
-              >
-                {usd(u.margin)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <section>
+        <h2 className="text-sm font-medium mb-3">Spend by end user</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+              <th className="font-normal py-2">User</th>
+              <th className="font-normal py-2 text-right">Features</th>
+              <th className="font-normal py-2 text-right">Requests</th>
+              <th className="font-normal py-2 text-right">Cost</th>
+              <th className="font-normal py-2 text-right">Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-4 text-gray-500">
+                  No attributed users.
+                </td>
+              </tr>
+            )}
+            {users.map((u) => (
+              <tr key={u.endUser} className="border-b border-gray-100">
+                <td className="py-2.5 font-mono text-xs truncate max-w-[16rem]">
+                  {u.endUser}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">{u.features}</td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {u.requests.toLocaleString()}
+                </td>
+                <td className="py-2.5 text-right tabular-nums">
+                  {usd(u.cost)}
+                </td>
+                <td
+                  className={`py-2.5 text-right tabular-nums ${u.margin < 0 ? "text-red-600" : ""}`}
+                >
+                  {usd(u.margin)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

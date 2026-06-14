@@ -10,9 +10,7 @@ export function RevokeKeyButton({ id }: { id: string }) {
 
   async function revoke() {
     setLoading(true);
-    const res = await fetch(`/api/subkeys?id=${id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(`/api/subkeys?id=${id}`, { method: "DELETE" });
     setLoading(false);
     setConfirming(false);
     if (res.ok) router.refresh();
@@ -20,20 +18,19 @@ export function RevokeKeyButton({ id }: { id: string }) {
 
   if (confirming) {
     return (
-      <span className="flex items-center gap-2 text-xs">
-        <span className="text-gray-500">Revoke? (active up to ~60s more)</span>
+      <span className="inline-flex items-center gap-2 text-xs">
         <button
           type="button"
           onClick={revoke}
           disabled={loading}
-          className="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+          className="text-red-600 hover:underline disabled:opacity-50"
         >
-          {loading ? "…" : "Confirm"}
+          {loading ? "..." : "Confirm"}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="px-2 py-1 rounded border hover:bg-gray-50"
+          className="text-gray-500 hover:underline"
         >
           Cancel
         </button>
@@ -45,7 +42,7 @@ export function RevokeKeyButton({ id }: { id: string }) {
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="text-xs text-red-600 hover:underline"
+      className="text-xs text-gray-500 hover:text-red-600 hover:underline"
     >
       Revoke
     </button>

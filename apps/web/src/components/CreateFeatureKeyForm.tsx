@@ -8,6 +8,10 @@ interface Option {
   label: string;
 }
 
+const input =
+  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black";
+const label = "block text-[11px] uppercase tracking-wider text-gray-500 mb-1";
+
 export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -44,7 +48,7 @@ export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
     if (!res.ok) {
       setError(
         data?.error?.toString?.() ??
-          "Failed to create feature key. Ensure the feature has at least one aliased product."
+          "Failed. Ensure the feature has at least one aliased product."
       );
       setLoading(false);
       return;
@@ -58,12 +62,10 @@ export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
 
   if (plainKey) {
     return (
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-green-700">
-          Feature key created. Copy it now. It won&apos;t be shown again.
-        </p>
+      <div className="max-w-xl space-y-3">
+        <p className="text-sm">Created. Copy it now, it won&apos;t be shown again.</p>
         <div className="flex items-center gap-2">
-          <code className="flex-1 border rounded-lg px-3 py-2 text-sm font-mono break-all bg-gray-50">
+          <code className="flex-1 border border-gray-300 px-3 py-2 text-xs font-mono break-all">
             {plainKey}
           </code>
           <button
@@ -72,7 +74,7 @@ export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
               navigator.clipboard?.writeText(plainKey);
               setCopied(true);
             }}
-            className="px-3 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+            className="px-3 py-2 bg-black text-white text-sm hover:bg-gray-800"
           >
             {copied ? "Copied" : "Copy"}
           </button>
@@ -83,7 +85,7 @@ export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
             setPlainKey("");
             setCopied(false);
           }}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-xs text-gray-600 hover:underline"
         >
           Create another
         </button>
@@ -92,75 +94,71 @@ export function CreateFeatureKeyForm({ features }: { features: Option[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3 max-w-xl">
       {disabled && (
-        <p className="text-sm text-amber-600">
-          Create a feature (with at least one aliased product) first.
+        <p className="col-span-2 text-xs text-amber-700">
+          Create a feature with at least one aliased product first.
         </p>
       )}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Feature</label>
-          <select
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-            value={form.projectId}
-            onChange={(e) => setForm({ ...form, projectId: e.target.value })}
-            required
-          >
-            <option value="">— Select feature —</option>
-            {features.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">
-            Label (optional)
-          </label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-            placeholder="e.g. production"
-            value={form.label}
-            onChange={(e) => setForm({ ...form, label: e.target.value })}
-          />
-        </div>
+      <div>
+        <label className={label}>Feature</label>
+        <select
+          className={input}
+          value={form.projectId}
+          onChange={(e) => setForm({ ...form, projectId: e.target.value })}
+          required
+        >
+          <option value="">Select</option>
+          {features.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.label}
+            </option>
+          ))}
+        </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">RPM limit</label>
-          <input
-            type="number"
-            min={1}
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-            value={form.rpmLimit}
-            onChange={(e) =>
-              setForm({ ...form, rpmLimit: parseInt(e.target.value, 10) || 1 })
-            }
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">RPD limit</label>
-          <input
-            type="number"
-            min={1}
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-            value={form.rpdLimit}
-            onChange={(e) =>
-              setForm({ ...form, rpdLimit: parseInt(e.target.value, 10) || 1 })
-            }
-          />
-        </div>
+      <div>
+        <label className={label}>Label</label>
+        <input
+          className={input}
+          placeholder="production"
+          value={form.label}
+          onChange={(e) => setForm({ ...form, label: e.target.value })}
+        />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading || disabled}
-        className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
-      >
-        {loading ? "Creating..." : "Create feature key"}
-      </button>
+      <div>
+        <label className={label}>RPM</label>
+        <input
+          type="number"
+          min={1}
+          className={input}
+          value={form.rpmLimit}
+          onChange={(e) =>
+            setForm({ ...form, rpmLimit: parseInt(e.target.value, 10) || 1 })
+          }
+        />
+      </div>
+      <div>
+        <label className={label}>RPD</label>
+        <input
+          type="number"
+          min={1}
+          className={input}
+          value={form.rpdLimit}
+          onChange={(e) =>
+            setForm({ ...form, rpdLimit: parseInt(e.target.value, 10) || 1 })
+          }
+        />
+      </div>
+      {error && <p className="col-span-2 text-red-600 text-xs">{error}</p>}
+      <div className="col-span-2">
+        <button
+          type="submit"
+          disabled={loading || disabled}
+          className="bg-black text-white px-5 py-2 text-sm hover:bg-gray-800 disabled:opacity-50"
+        >
+          {loading ? "Creating" : "Create key"}
+        </button>
+      </div>
     </form>
   );
 }

@@ -12,13 +12,11 @@ export function AccountMenu() {
   }
 
   return (
-    <div className="mt-auto pt-4 border-t">
-      <button
-        onClick={logout}
-        className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100 hover:text-black"
-      >
-        Sign out
-      </button>
-    </div>
+    <button
+      onClick={logout}
+      className="mt-auto text-left px-2 py-1.5 rounded text-[13px] text-gray-500 hover:bg-gray-100 hover:text-black"
+    >
+      Sign out
+    </button>
   );
 }

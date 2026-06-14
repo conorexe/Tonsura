@@ -11,6 +11,10 @@ interface FeatureOption {
   slug: string;
 }
 
+const input =
+  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black";
+const label = "block text-[11px] uppercase tracking-wider text-gray-500 mb-1";
+
 export default function NewProductPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -57,9 +61,7 @@ export default function NewProductPage() {
     });
 
     if (!res.ok) {
-      setError(
-        "Failed to create product. A path alias must be unique within its feature."
-      );
+      setError("Path alias must be unique within its feature.");
       setLoading(false);
       return;
     }
@@ -68,45 +70,49 @@ export default function NewProductPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">New Product</h1>
+    <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+      <h1 className="text-base font-semibold">New product</h1>
 
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="font-medium">Details</h2>
-        <input
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          placeholder="Master Key ID (UUID)"
-          value={form.masterKeyId}
-          onChange={(e) => setForm({ ...form, masterKeyId: e.target.value })}
-          required
-        />
-        <input
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          placeholder="Product Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
-        <input
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          placeholder="Slug (e.g. claude-3-5-sonnet)"
-          value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
-          required
-        />
-        <div className="grid grid-cols-2 gap-4">
+      <section className="space-y-4">
+        <div>
+          <label className={label}>Master key ID</label>
+          <input
+            className={`${input} font-mono`}
+            value={form.masterKeyId}
+            onChange={(e) => setForm({ ...form, masterKeyId: e.target.value })}
+            required
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Feature (optional)
-            </label>
+            <label className={label}>Name</label>
+            <input
+              className={input}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <label className={label}>Slug</label>
+            <input
+              className={input}
+              placeholder="claude-3-5-sonnet"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              required
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={label}>Feature</label>
             <select
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className={input}
               value={form.projectId}
-              onChange={(e) =>
-                setForm({ ...form, projectId: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, projectId: e.target.value })}
             >
-              <option value="">— Standalone (no feature) —</option>
+              <option value="">Standalone</option>
               {features.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -115,12 +121,12 @@ export default function NewProductPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Path alias {form.projectId ? "(required for routing)" : "(optional)"}
+            <label className={label}>
+              Path alias{form.projectId ? " (required)" : ""}
             </label>
             <input
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-              placeholder="e.g. chat or tts"
+              className={input}
+              placeholder="chat"
               value={form.pathAlias}
               onChange={(e) =>
                 setForm({
@@ -133,23 +139,12 @@ export default function NewProductPage() {
             />
           </div>
         </div>
-        {form.projectId && (
-          <p className="text-xs text-gray-500 -mt-2">
-            Feature-key calls to{" "}
-            <code className="bg-gray-100 px-1 rounded">
-              /v1/{form.pathAlias || "{alias}"}/…
-            </code>{" "}
-            route to this product&apos;s upstream.
-          </p>
-        )}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Your price / 1M tokens ($)
-            </label>
+            <label className={label}>Price / 1M units ($)</label>
             <input
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-              placeholder="e.g. 20.00"
+              className={input}
+              placeholder="20.00"
               value={form.pricePerMillionTokens}
               onChange={(e) =>
                 setForm({ ...form, pricePerMillionTokens: e.target.value })
@@ -158,12 +153,10 @@ export default function NewProductPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Provider cost / 1M tokens ($)
-            </label>
+            <label className={label}>Cost / 1M units ($)</label>
             <input
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-              placeholder="e.g. 15.00"
+              className={input}
+              placeholder="15.00"
               value={form.costPerMillionTokens}
               onChange={(e) =>
                 setForm({ ...form, costPerMillionTokens: e.target.value })
@@ -172,14 +165,12 @@ export default function NewProductPage() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Default RPM limit
-            </label>
+            <label className={label}>RPM</label>
             <input
               type="number"
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className={input}
               value={form.defaultRpmLimit}
               onChange={(e) =>
                 setForm({
@@ -190,12 +181,10 @@ export default function NewProductPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Default RPD limit
-            </label>
+            <label className={label}>RPD</label>
             <input
               type="number"
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className={input}
               value={form.defaultRpdLimit}
               onChange={(e) =>
                 setForm({
@@ -206,28 +195,24 @@ export default function NewProductPage() {
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="font-medium">Transformation Rules</h2>
-        <p className="text-sm text-gray-500">
-          Optionally modify requests and responses before they reach the upstream
-          provider.
-        </p>
+      <section>
+        <h2 className="text-sm font-medium mb-3">Transforms</h2>
         <TransformEditor
           value={transformConfig}
           onChange={setTransformConfig}
           providerType="llm"
         />
-      </div>
+      </section>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-xs">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+        className="bg-black text-white px-5 py-2 text-sm hover:bg-gray-800 disabled:opacity-50"
       >
-        {loading ? "Creating..." : "Create Product"}
+        {loading ? "Creating" : "Create product"}
       </button>
     </form>
   );

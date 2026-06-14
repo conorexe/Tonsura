@@ -13,10 +13,14 @@ const CUSTOM = "__custom__";
 type AuthScheme = "bearer" | "header" | "query";
 type ProviderType = "generic" | "llm" | "openai" | "anthropic" | "elevenlabs";
 
+const input =
+  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black";
+const label = "block text-[11px] uppercase tracking-wider text-gray-500 mb-1";
+
 export function AddMasterKeyForm({ providers }: Props) {
   const router = useRouter();
   const [providerId, setProviderId] = useState(providers[0]?.id ?? CUSTOM);
-  const [label, setLabel] = useState("");
+  const [labelText, setLabel] = useState("");
   const [plainKey, setPlainKey] = useState("");
 
   const [custName, setCustName] = useState("");
@@ -37,7 +41,7 @@ export function AddMasterKeyForm({ providers }: Props) {
 
     const body = isCustom
       ? {
-          label,
+          label: labelText,
           plainKey,
           customProvider: {
             name: custName,
@@ -47,7 +51,7 @@ export function AddMasterKeyForm({ providers }: Props) {
             authParam: authScheme === "bearer" ? undefined : authParam,
           },
         }
-      : { providerId, label, plainKey };
+      : { providerId, label: labelText, plainKey };
 
     const res = await fetch("/api/master-keys", {
       method: "POST",
@@ -62,7 +66,7 @@ export function AddMasterKeyForm({ providers }: Props) {
       setError(
         typeof data?.error === "string"
           ? data.error
-          : "Failed to add key. Check the base URL and try again."
+          : "Failed. Check the base URL and try again."
       );
       setLoading(false);
       return;
@@ -78,12 +82,12 @@ export function AddMasterKeyForm({ providers }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Provider</label>
+          <label className={label}>Provider</label>
           <select
-            className="w-full border rounded-lg px-3 py-2 text-sm"
+            className={input}
             value={providerId}
             onChange={(e) => setProviderId(e.target.value)}
           >
@@ -92,15 +96,15 @@ export function AddMasterKeyForm({ providers }: Props) {
                 {p.name}
               </option>
             ))}
-            <option value={CUSTOM}>+ Custom API…</option>
+            <option value={CUSTOM}>Custom</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Label</label>
+          <label className={label}>Label</label>
           <input
-            className="w-full border rounded-lg px-3 py-2 text-sm"
-            placeholder="My production key"
-            value={label}
+            className={input}
+            placeholder="production"
+            value={labelText}
             onChange={(e) => setLabel(e.target.value)}
             required
           />
@@ -108,31 +112,23 @@ export function AddMasterKeyForm({ providers }: Props) {
       </div>
 
       {isCustom && (
-        <div className="rounded-lg border border-dashed p-4 space-y-4 bg-gray-50">
-          <p className="text-xs text-gray-500">
-            Connect any API on any platform. Tonsura proxies requests to your
-            base URL and attaches the key the way the API expects.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="border-l-2 border-gray-200 pl-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">
-                API name
-              </label>
+              <label className={label}>Name</label>
               <input
-                className="w-full border rounded-lg px-3 py-2 text-sm"
-                placeholder="Stripe, OpenAI, my-internal-svc…"
+                className={input}
+                placeholder="Stripe, my-svc"
                 value={custName}
                 onChange={(e) => setCustName(e.target.value)}
                 required={isCustom}
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">
-                Base URL
-              </label>
+              <label className={label}>Base URL</label>
               <input
                 type="url"
-                className="w-full border rounded-lg px-3 py-2 text-sm font-mono"
+                className={`${input} font-mono`}
                 placeholder="https://api.example.com"
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
@@ -141,47 +137,39 @@ export function AddMasterKeyForm({ providers }: Props) {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Usage metering
-            </label>
+            <label className={label}>Metering</label>
             <select
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className={input}
               value={custType}
               onChange={(e) => setCustType(e.target.value as ProviderType)}
             >
-              <option value="generic">Generic (bill per request)</option>
-              <option value="openai">OpenAI (tokens from response usage)</option>
-              <option value="anthropic">
-                Anthropic (tokens from response usage)
-              </option>
-              <option value="elevenlabs">
-                ElevenLabs (characters from request text)
-              </option>
-              <option value="llm">Other LLM (auto-detect token usage)</option>
+              <option value="generic">Per request</option>
+              <option value="openai">OpenAI tokens</option>
+              <option value="anthropic">Anthropic tokens</option>
+              <option value="elevenlabs">ElevenLabs characters</option>
+              <option value="llm">Auto-detect LLM tokens</option>
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">
-                Auth method
-              </label>
+              <label className={label}>Auth</label>
               <select
-                className="w-full border rounded-lg px-3 py-2 text-sm"
+                className={input}
                 value={authScheme}
                 onChange={(e) => setAuthScheme(e.target.value as AuthScheme)}
               >
-                <option value="bearer">Authorization: Bearer</option>
-                <option value="header">Custom header</option>
-                <option value="query">Query parameter</option>
+                <option value="bearer">Bearer</option>
+                <option value="header">Header</option>
+                <option value="query">Query param</option>
               </select>
             </div>
             {authScheme !== "bearer" && (
               <div>
-                <label className="block text-xs text-gray-500 mb-1">
-                  {authScheme === "header" ? "Header name" : "Query param name"}
+                <label className={label}>
+                  {authScheme === "header" ? "Header name" : "Param name"}
                 </label>
                 <input
-                  className="w-full border rounded-lg px-3 py-2 text-sm font-mono"
+                  className={`${input} font-mono`}
                   placeholder={authScheme === "header" ? "x-api-key" : "api_key"}
                   value={authParam}
                   onChange={(e) => setAuthParam(e.target.value)}
@@ -194,26 +182,23 @@ export function AddMasterKeyForm({ providers }: Props) {
       )}
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">API Key</label>
+        <label className={label}>Key</label>
         <input
           type="password"
-          className="w-full border rounded-lg px-3 py-2 text-sm font-mono"
-          placeholder="sk-…"
+          className={`${input} font-mono`}
+          placeholder="sk-..."
           value={plainKey}
           onChange={(e) => setPlainKey(e.target.value)}
           required
         />
-        <p className="text-xs text-gray-400 mt-1">
-          Encrypted with AES-256-GCM before storage. Not recoverable.
-        </p>
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-xs">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800 disabled:opacity-50"
+        className="bg-black text-white px-5 py-2 text-sm hover:bg-gray-800 disabled:opacity-50"
       >
-        {loading ? "Adding..." : "Add Key"}
+        {loading ? "Adding" : "Add key"}
       </button>
     </form>
   );

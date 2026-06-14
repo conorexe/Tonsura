@@ -8,6 +8,8 @@ import { VolumeChart } from "@/components/charts/VolumeChart";
 
 export const dynamic = "force-dynamic";
 
+const nfmt = (n: number) => n.toLocaleString("en-US");
+
 export default async function AnalyticsPage() {
   const db = getDb();
   const [volume, latency, subKeyPL] = await Promise.all([
@@ -23,92 +25,98 @@ export default async function AnalyticsPage() {
   const errorRate =
     totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0;
 
+  const stats = [
+    { label: "Active keys", value: String(keyCount) },
+    { label: "Requests (30d)", value: nfmt(totalRequests) },
+    { label: "Error rate", value: `${errorRate.toFixed(2)}%` },
+    { label: "p50", value: `${latency.p50}ms` },
+    { label: "p95", value: `${latency.p95}ms` },
+    { label: "p99", value: `${latency.p99}ms` },
+  ];
+
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Analytics</h1>
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-6">
-        {[
-          { label: "Active keys", value: String(keyCount) },
-          { label: "Requests (30d)", value: nfmt(totalRequests) },
-          { label: "Error rate", value: `${errorRate.toFixed(2)}%` },
-          { label: "P50 latency", value: `${latency.p50}ms` },
-          { label: "P95 latency", value: `${latency.p95}ms` },
-          { label: "P99 latency", value: `${latency.p99}ms` },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border p-4">
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className="text-2xl font-bold mt-1">{s.value}</p>
+    <div className="space-y-10">
+      <h1 className="text-base font-semibold">Analytics</h1>
+
+      <div className="grid grid-cols-6 border-y border-gray-200 divide-x divide-gray-200">
+        {stats.map((s) => (
+          <div key={s.label} className="py-3 px-4">
+            <p className="text-[11px] uppercase tracking-wider text-gray-500">
+              {s.label}
+            </p>
+            <p className="text-lg font-medium mt-1 tabular-nums">{s.value}</p>
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-xl border p-6">
-        <h2 className="text-sm font-medium text-gray-500 mb-4">
-          Request Volume (24h)
-        </h2>
+
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-sm font-medium">Request volume</h2>
+          <span className="text-xs text-gray-500">Last 24 hours</span>
+        </div>
         <VolumeChart data={volume} />
-      </div>
-      <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="p-4 border-b font-medium flex items-baseline justify-between">
-          <span>P&amp;L per API key (30d)</span>
-          <span className="text-sm font-normal text-gray-500">
-            {keyCount} keys · ${totalMargin.toFixed(2)} total margin
+      </section>
+
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-sm font-medium">P&amp;L per key</h2>
+          <span className="text-xs text-gray-500 tabular-nums">
+            {keyCount} keys · ${totalMargin.toFixed(2)} margin
           </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-gray-500 border-b bg-gray-50">
-                <th className="px-4 py-2 font-medium">API key</th>
-                <th className="px-4 py-2 font-medium text-right">Requests</th>
-                <th className="px-4 py-2 font-medium text-right">Avg latency</th>
-                <th className="px-4 py-2 font-medium text-right">Errors</th>
-                <th className="px-4 py-2 font-medium text-right">Revenue</th>
-                <th className="px-4 py-2 font-medium text-right">Cost</th>
-                <th className="px-4 py-2 font-medium text-right">Margin</th>
-                <th className="px-4 py-2 font-medium text-right">Margin %</th>
+              <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+                <th className="font-normal py-2">Key</th>
+                <th className="font-normal py-2 text-right">Requests</th>
+                <th className="font-normal py-2 text-right">Latency</th>
+                <th className="font-normal py-2 text-right">Errors</th>
+                <th className="font-normal py-2 text-right">Revenue</th>
+                <th className="font-normal py-2 text-right">Cost</th>
+                <th className="font-normal py-2 text-right">Margin</th>
+                <th className="font-normal py-2 text-right">%</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody>
               {subKeyPL.map((row) => {
                 const errPct =
                   row.requests > 0 ? (row.errors / row.requests) * 100 : 0;
                 const marginPct =
                   row.revenue > 0 ? (row.margin / row.revenue) * 100 : null;
                 return (
-                  <tr key={row.subKeyId} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 font-mono text-xs text-gray-600 truncate max-w-[14rem]">
+                  <tr key={row.subKeyId} className="border-b border-gray-100">
+                    <td className="py-2.5 font-mono text-xs text-gray-600 truncate max-w-[14rem]">
                       {row.subKeyId}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums">
+                    <td className="py-2.5 text-right tabular-nums">
                       {nfmt(row.requests)}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums text-gray-600">
+                    <td className="py-2.5 text-right tabular-nums text-gray-600">
                       {row.avgLatency}ms
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums">
+                    <td className="py-2.5 text-right tabular-nums">
                       <span
                         className={
                           errPct > 0.3 ? "text-red-600" : "text-gray-600"
                         }
                       >
-                        {row.errors} ({errPct.toFixed(2)}%)
+                        {row.errors}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums">
+                    <td className="py-2.5 text-right tabular-nums">
                       ${row.revenue.toFixed(2)}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums text-gray-600">
+                    <td className="py-2.5 text-right tabular-nums text-gray-600">
                       ${row.cost.toFixed(2)}
                     </td>
                     <td
-                      className={`px-4 py-2 text-right tabular-nums font-medium ${
-                        row.margin >= 0 ? "text-green-700" : "text-red-600"
-                      }`}
+                      className={`py-2.5 text-right tabular-nums ${row.margin < 0 ? "text-red-600" : ""}`}
                     >
                       ${row.margin.toFixed(2)}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums text-gray-600">
-                      {marginPct === null ? "—" : `${marginPct.toFixed(0)}%`}
+                    <td className="py-2.5 text-right tabular-nums text-gray-600">
+                      {marginPct === null ? "" : `${marginPct.toFixed(0)}%`}
                     </td>
                   </tr>
                 );
@@ -116,11 +124,7 @@ export default async function AnalyticsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
   );
-}
-
-function nfmt(n: number): string {
-  return n.toLocaleString("en-US");
 }

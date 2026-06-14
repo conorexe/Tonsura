@@ -16,57 +16,60 @@ export default async function KeysPage() {
   const featureName = new Map(projects.map((p) => [p.id, p.name]));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Keys</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          A feature key authorizes every product in a feature. Your app calls{" "}
-          <code className="text-xs">/v1/&#123;alias&#125;/…</code> and the
-          gateway picks the upstream by path alias, stamping the feature on
-          usage automatically.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <h1 className="text-base font-semibold">Issued keys</h1>
 
-      <div className="bg-white rounded-xl border p-6">
-        <h2 className="font-medium mb-4">New feature key</h2>
-        <CreateFeatureKeyForm features={featureOptions} />
-      </div>
-
-      <div className="bg-white rounded-xl border divide-y">
-        <div className="p-4 text-sm font-medium text-gray-500">Issued keys</div>
-        {keys.length === 0 && (
-          <p className="p-6 text-gray-500 text-sm">No keys issued yet.</p>
-        )}
-        {keys.map((k) => (
-          <div key={k.id} className="p-4 flex items-center justify-between">
-            <div>
-              <p className="font-medium">
-                {k.label || "(unlabeled)"}
-                {k.projectId && (
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                    feature
+      <section>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+              <th className="font-normal py-2">Label</th>
+              <th className="font-normal py-2">Feature</th>
+              <th className="font-normal py-2 text-right">Limits</th>
+              <th className="font-normal py-2 text-right">Status</th>
+              <th className="font-normal py-2 text-right w-20"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {keys.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-6 text-gray-500">
+                  No keys issued.
+                </td>
+              </tr>
+            )}
+            {keys.map((k) => (
+              <tr key={k.id} className="border-b border-gray-100">
+                <td className="py-2.5">{k.label || "(unlabeled)"}</td>
+                <td className="py-2.5 text-gray-600">
+                  {k.projectId
+                    ? (featureName.get(k.projectId) ?? "")
+                    : "(single product)"}
+                </td>
+                <td className="py-2.5 text-right text-gray-600 tabular-nums">
+                  {k.rpmLimit}/min &nbsp;·&nbsp; {k.rpdLimit}/day
+                </td>
+                <td className="py-2.5 text-right">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-gray-600">
+                    <span
+                      className={`inline-block w-1.5 h-1.5 rounded-full ${k.active ? "bg-emerald-500" : "bg-gray-300"}`}
+                    />
+                    {k.active ? "Active" : "Revoked"}
                   </span>
-                )}
-              </p>
-              <p className="text-sm text-gray-500">
-                {k.projectId
-                  ? `Feature: ${featureName.get(k.projectId) ?? "—"}`
-                  : "Single-product key"}
-                {" · "}
-                {k.rpmLimit} rpm / {k.rpdLimit} rpd
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span
-                className={`text-xs px-2 py-1 rounded-full ${k.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
-              >
-                {k.active ? "Active" : "Revoked"}
-              </span>
-              {k.active && <RevokeKeyButton id={k.id} />}
-            </div>
-          </div>
-        ))}
-      </div>
+                </td>
+                <td className="py-2.5 text-right">
+                  {k.active && <RevokeKeyButton id={k.id} />}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium mb-4">New feature key</h2>
+        <CreateFeatureKeyForm features={featureOptions} />
+      </section>
     </div>
   );
 }

@@ -9,47 +9,61 @@ export default async function ProductsPage() {
   const products = await listProducts(db);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Products</h1>
+    <div className="space-y-8">
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-base font-semibold">Products</h1>
         <Link
           href="/app/products/new"
-          className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+          className="text-sm text-black hover:underline"
         >
-          + New Product
+          + New product
         </Link>
       </div>
-      <div className="bg-white rounded-xl border divide-y">
-        {products.length === 0 && (
-          <p className="p-6 text-gray-500 text-sm">
-            No products yet. A product binds an upstream API key to a unit
-            price so usage can be metered.
-          </p>
-        )}
-        {products.map((p) => (
-          <div key={p.id} className="p-4 flex items-center justify-between">
-            <div>
-              <p className="font-medium">
-                {p.name}
-                {p.pathAlias && (
-                  <code className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded">
-                    /v1/{p.pathAlias}/…
-                  </code>
-                )}
-              </p>
-              <p className="text-sm text-gray-500">
-                Price: ${p.pricePerMillionTokens}/M {p.unitType}s · Cost: $
-                {p.costPerMillionTokens}/M {p.unitType}s
-              </p>
-            </div>
-            <span
-              className={`text-xs px-2 py-1 rounded-full ${p.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
-            >
-              {p.active ? "Active" : "Inactive"}
-            </span>
-          </div>
-        ))}
-      </div>
+
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
+            <th className="font-normal py-2">Name</th>
+            <th className="font-normal py-2">Alias</th>
+            <th className="font-normal py-2 text-right">Price</th>
+            <th className="font-normal py-2 text-right">Cost</th>
+            <th className="font-normal py-2 text-right">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.length === 0 && (
+            <tr>
+              <td colSpan={5} className="py-6 text-gray-500">
+                No products.
+              </td>
+            </tr>
+          )}
+          {products.map((p) => (
+            <tr key={p.id} className="border-b border-gray-100">
+              <td className="py-2.5">{p.name}</td>
+              <td className="py-2.5 font-mono text-xs text-gray-600">
+                {p.pathAlias ? `/v1/${p.pathAlias}` : ""}
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                ${p.pricePerMillionTokens}
+                <span className="text-xs text-gray-500"> /M {p.unitType}</span>
+              </td>
+              <td className="py-2.5 text-right tabular-nums">
+                ${p.costPerMillionTokens}
+                <span className="text-xs text-gray-500"> /M {p.unitType}</span>
+              </td>
+              <td className="py-2.5 text-right">
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-600">
+                  <span
+                    className={`inline-block w-1.5 h-1.5 rounded-full ${p.active ? "bg-emerald-500" : "bg-gray-300"}`}
+                  />
+                  {p.active ? "Active" : "Inactive"}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
