@@ -19,7 +19,6 @@ export function AddMasterKeyForm({ providers }: Props) {
   const [label, setLabel] = useState("");
   const [plainKey, setPlainKey] = useState("");
 
-  // Custom-provider fields, only used when providerId === CUSTOM.
   const [custName, setCustName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [custType, setCustType] = useState<ProviderType>("generic");
@@ -150,15 +149,15 @@ export function AddMasterKeyForm({ providers }: Props) {
               value={custType}
               onChange={(e) => setCustType(e.target.value as ProviderType)}
             >
-              <option value="generic">Generic — bill per request</option>
-              <option value="openai">OpenAI — tokens from response usage</option>
+              <option value="generic">Generic (bill per request)</option>
+              <option value="openai">OpenAI (tokens from response usage)</option>
               <option value="anthropic">
-                Anthropic — tokens from response usage
+                Anthropic (tokens from response usage)
               </option>
               <option value="elevenlabs">
-                ElevenLabs — characters from request text
+                ElevenLabs (characters from request text)
               </option>
-              <option value="llm">Other LLM — auto-detect token usage</option>
+              <option value="llm">Other LLM (auto-detect token usage)</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">

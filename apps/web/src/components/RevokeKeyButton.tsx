@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Revokes a sub-key via DELETE /api/reseller/subkeys?id=... Revocation is
-// soft (sets active=false); the gateway honors it once the 60s SubKeyMeta cache
-// TTL lapses, so the key may keep working briefly — surfaced in the confirm copy.
 export function RevokeKeyButton({ id }: { id: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);

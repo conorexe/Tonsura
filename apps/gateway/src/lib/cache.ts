@@ -1,7 +1,3 @@
-// In-process TTL cache. Replaces the previous Upstash Redis "cache", which
-// cost a network round trip per lookup — often slower than the DB query it was
-// guarding. Single-process scope is fine for a self-hosted deployment; run one
-// gateway instance (or accept an independent cache per instance).
 export class TTLCache<T> {
   private store = new Map<string, { value: T; expires: number }>();
 
@@ -35,8 +31,6 @@ export class TTLCache<T> {
     for (const [k, v] of this.store) {
       if (t >= v.expires) this.store.delete(k);
     }
-    // Still over the cap after dropping expired entries (a hot flood of unique
-    // keys): drop oldest-inserted to bound memory.
     if (this.store.size >= this.maxEntries) {
       const overflow = this.store.size - Math.floor(this.maxEntries / 2);
       let i = 0;

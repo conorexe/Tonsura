@@ -5,7 +5,6 @@ import {
   getAuthSecret,
 } from "@/lib/session";
 
-// Everything except the login page/endpoint requires a valid operator session.
 const PUBLIC_PATHS = new Set(["/login", "/api/login"]);
 
 export default async function middleware(request: NextRequest) {

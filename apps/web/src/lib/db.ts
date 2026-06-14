@@ -1,9 +1,6 @@
 import { createDbClient } from "@tonsura/db";
 
-// One pool per process — stashed on globalThis so it survives Next.js dev
-// hot-reloads. Module-level state is re-evaluated on every HMR cycle, which
-// used to leak a fresh connection pool (and exhaust the Postgres pooler's
-// client cap) each time a file changed.
+// Stash on globalThis so the pool survives Next dev hot reloads.
 const g = globalThis as unknown as {
   __tonsuraDb?: ReturnType<typeof createDbClient>;
 };

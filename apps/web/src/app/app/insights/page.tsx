@@ -47,7 +47,8 @@ export default async function InsightsPage() {
       <div>
         <h1 className="text-2xl font-bold">Insights</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Where your API spend goes — by feature, root API, end-user, and tier.
+          Where your API spend goes, broken down by feature, root API, end
+          user, and tier.
         </p>
       </div>
 

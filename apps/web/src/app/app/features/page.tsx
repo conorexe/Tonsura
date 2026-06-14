@@ -85,7 +85,7 @@ export default async function FeaturesPage() {
                           </code>
                         ) : (
                           <span className="text-xs text-amber-600">
-                            no alias — not routable
+                            no alias, not routable
                           </span>
                         )}
                         <span className="text-xs text-gray-400">

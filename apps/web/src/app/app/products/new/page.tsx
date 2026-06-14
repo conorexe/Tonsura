@@ -31,9 +31,6 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load the reseller's features so a product can be bound into one (and become
-  // alias-routable for feature keys). Optional — a product with no feature stays
-  // a legacy standalone product.
   useEffect(() => {
     fetch("/api/projects")
       .then((r) => (r.ok ? r.json() : []))
@@ -48,7 +45,6 @@ export default function NewProductPage() {
 
     const payload = {
       ...form,
-      // Send only when set — both are optional server-side.
       projectId: form.projectId || undefined,
       pathAlias: form.pathAlias || undefined,
       transformConfig,

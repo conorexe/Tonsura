@@ -7,9 +7,6 @@ import { db } from "../db";
 import { TTLCache } from "../lib/cache";
 import { dailyTokens } from "../lib/ratelimit";
 
-// Sub-key meta cached in-process for 60s: the hot path makes zero DB calls on
-// a warm key. Revocations therefore take up to 60s to bite — same window the
-// old Redis cache had, without the network round trip.
 const metaCache = new TTLCache<SubKeyMeta>(60_000);
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {

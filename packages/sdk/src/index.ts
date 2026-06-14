@@ -1,45 +1,24 @@
-// @tonsura/sdk — the "tracking pixel" client for SaaS owners.
-//
-// Use it to self-report per-feature API usage for calls you make directly to a
-// provider (i.e. not through the Tonsura gateway proxy). For proxied calls you
-// don't need track() — just attach proxyHeaders(feature) so the gateway stamps
-// the feature automatically.
-
 export type UnitType = "token" | "character" | "request" | "record";
 
 export interface TonsuraClientOptions {
-  /** Customer sub-key, e.g. "sk_live_...". */
   apiKey: string;
-  /** Gateway origin, e.g. "https://gateway.tonsura.dev". */
   baseUrl: string;
-  /** Feature tag applied when an individual call omits one. */
   defaultFeature?: string;
-  /** Override the global fetch (e.g. node-fetch, an instrumented fetch). */
   fetch?: typeof fetch;
 }
 
 export interface TrackEvent {
-  /**
-   * Idempotency key. Supply a stable id per logical event so a retried report is
-   * deduped server-side instead of double-counted. Defaults to a fresh UUID.
-   */
   eventId?: string;
-  /** Per-feature attribution tag. Falls back to the client's defaultFeature. */
   feature?: string;
-  /** The SaaS's own end-user that drove this call, for per-user spend rollups. */
   endUser?: string;
-  /** The end-user's pricing tier/plan, for margin-by-tier rollups. */
   plan?: string;
-  /** Billable units consumed (tokens, characters, requests, or records). Defaults to 1. */
   units?: number;
-  /** Override the sub-key's product unitType. */
   unitType?: UnitType;
   endpoint?: string;
   method?: string;
   statusCode?: number;
   latencyMs?: number;
   error?: string;
-  /** ISO-8601 timestamp; defaults to the gateway's receive time. */
   timestamp?: string;
 }
 
@@ -62,13 +41,7 @@ export class TonsuraError extends Error {
 }
 
 export interface TonsuraClient {
-  /** Report a usage event. Throws TonsuraError on a non-2xx response. */
   track(event: TrackEvent): Promise<TrackResult>;
-  /**
-   * Time and report an async operation as one usage event, returning its
-   * result. Reporting is best-effort: a telemetry failure never throws, so it
-   * can't break the wrapped feature.
-   */
   wrap<T>(
     feature: string,
     fn: () => Promise<T>,
@@ -79,10 +52,6 @@ export interface TonsuraClient {
       endUser?: string;
     }
   ): Promise<T>;
-  /**
-   * Headers to attach to a proxied call so the gateway stamps the feature (and
-   * optionally the end-user + plan) on the captured usage row.
-   */
   proxyHeaders(
     feature?: string,
     endUser?: string,
@@ -93,7 +62,6 @@ export interface TonsuraClient {
 function newEventId(): string {
   const g = globalThis as { crypto?: { randomUUID?: () => string } };
   if (g.crypto?.randomUUID) return g.crypto.randomUUID();
-  // Fallback for runtimes without crypto.randomUUID.
   return `evt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
@@ -103,9 +71,7 @@ export function createTonsuraClient(
   const baseUrl = options.baseUrl.replace(/\/+$/, "");
   const doFetch = options.fetch ?? globalThis.fetch;
   if (typeof doFetch !== "function") {
-    throw new Error(
-      "No fetch available; pass options.fetch on this runtime."
-    );
+    throw new Error("No fetch available; pass options.fetch on this runtime.");
   }
 
   async function track(event: TrackEvent): Promise<TrackResult> {
@@ -170,9 +136,7 @@ export function createTonsuraClient(
         latencyMs: Date.now() - start,
         ...(error ? { error } : {}),
       };
-      void track(event).catch(() => {
-        // best-effort telemetry: never let a reporting failure surface
-      });
+      void track(event).catch(() => {});
     }
   }
 

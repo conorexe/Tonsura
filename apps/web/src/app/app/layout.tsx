@@ -1,7 +1,6 @@
 import { AccountMenu } from "@/components/AccountMenu";
 import Link from "next/link";
 
-// Auth is enforced by src/middleware.ts (session cookie) — no per-layout gate.
 export default function AppLayout({
   children,
 }: {

@@ -34,10 +34,6 @@ export const CreateProductSchema = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/),
-  // URL segment that selects this root-API binding within a feature, e.g. "chat"
-  // or "tts" → a feature key call to /v1/{pathAlias}/... routes here. Lowercase
-  // slug. Omit for legacy single-product keys (no alias routing). Unique per
-  // feature (project) — enforced by the api_products_project_alias_idx index.
   pathAlias: z
     .string()
     .min(1)

@@ -2,11 +2,6 @@ import { sql } from "drizzle-orm";
 import type { DrizzleClient } from "../client";
 import { usageLogs } from "../schema/index";
 
-// ---------------------------------------------------------------------------
-// Write path
-// ---------------------------------------------------------------------------
-
-// One billable event, as produced by the gateway (proxy or pixel) or the SDK.
 export interface UsageEvent {
   eventId: string;
   subKeyId: string;
@@ -31,9 +26,7 @@ export interface UsageEvent {
   timestamp?: string;
 }
 
-// Insert one usage event. The unique index on event_id makes this idempotent:
-// a retried postback or duplicate fire becomes a no-op. Returns whether the
-// row was actually written (false = duplicate).
+// Idempotent via the unique index on event_id. Returns false on duplicate.
 export async function insertUsageEvent(
   db: DrizzleClient,
   event: UsageEvent
@@ -67,10 +60,6 @@ export async function insertUsageEvent(
     .returning({ id: usageLogs.id });
   return rows.length > 0;
 }
-
-// ---------------------------------------------------------------------------
-// Insight queries (all windows are relative to now())
-// ---------------------------------------------------------------------------
 
 type Row = Record<string, unknown>;
 
@@ -323,7 +312,6 @@ export interface UserUsage {
   lastSeen: string;
 }
 
-// Per end-user spend rollup. Excludes unattributed traffic (end_user = '').
 export async function usageByUser(
   db: DrizzleClient,
   opts: { days?: number; limit?: number } = {}
@@ -368,7 +356,6 @@ export interface PlanMargin {
   margin: number;
 }
 
-// Margin per self-reported tier/plan (X-Tonsura-Plan header or pixel `plan`).
 export async function marginByPlan(
   db: DrizzleClient,
   days = 30

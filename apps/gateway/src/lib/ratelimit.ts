@@ -1,9 +1,3 @@
-// In-process fixed-window rate limiting + daily token metering.
-//
-// Replaces two sequential Upstash Redis round trips per request with O(1) map
-// lookups. Scope: a single gateway process — the normal self-hosted topology.
-// If you scale to multiple gateway instances, limits apply per instance.
-
 interface Window {
   start: number;
   count: number;
@@ -17,8 +11,6 @@ export class FixedWindowLimiter {
     private now: () => number = Date.now
   ) {}
 
-  // Count one hit for `key`. Returns whether it's allowed under `limit` and
-  // how many hits remain in the current window.
   hit(key: string, limit: number): { ok: boolean; remaining: number } {
     const t = this.now();
     const w = this.windows.get(key);
@@ -40,7 +32,6 @@ export class FixedWindowLimiter {
   }
 }
 
-// Per-key counter that resets at UTC midnight. Used for daily token limits.
 export class DailyCounter {
   private counts = new Map<string, number>();
   private day = "";
@@ -70,7 +61,6 @@ export class DailyCounter {
   }
 }
 
-// Process-wide singletons used by the middleware.
 export const rpmLimiter = new FixedWindowLimiter(60_000);
 export const rpdLimiter = new FixedWindowLimiter(86_400_000);
 export const dailyTokens = new DailyCounter();

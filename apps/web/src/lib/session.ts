@@ -1,10 +1,8 @@
-// Single-operator session auth: an HMAC-signed expiry token in an httpOnly
-// cookie. The operator logs in with ADMIN_PASSWORD (.env); there are no user
-// accounts. Uses only Web Crypto so the same code runs in the Next.js edge
-// middleware and in node route handlers.
+// HMAC-signed expiry token in an httpOnly cookie. Uses Web Crypto only so it
+// works in the Next edge middleware.
 
 export const SESSION_COOKIE = "tonsura_session";
-export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function b64url(bytes: ArrayBuffer): string {
   let s = "";
@@ -28,7 +26,7 @@ async function hmac(secret: string, message: string): Promise<string> {
   return b64url(sig);
 }
 
-// Token format: "<expiresAtMs>.<hmac(secret, expiresAtMs)>"
+// "<expiresAtMs>.<hmac(secret, expiresAtMs)>"
 export async function createSessionToken(secret: string): Promise<string> {
   const exp = String(Date.now() + SESSION_TTL_MS);
   return `${exp}.${await hmac(secret, exp)}`;
@@ -45,7 +43,6 @@ export async function verifySessionToken(
   const sig = token.slice(dot + 1);
   if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
   const expected = await hmac(secret, exp);
-  // Constant-time comparison.
   if (sig.length !== expected.length) return false;
   let diff = 0;
   for (let i = 0; i < sig.length; i++) {

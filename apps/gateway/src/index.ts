@@ -14,9 +14,7 @@ app.use("*", cors());
 
 app.get("/health", (c) => c.json({ ok: true }));
 
-// Self-reported usage ingest (the "tracking pixel"). Registered before the
-// proxy catch-all so it isn't swallowed by /v1/*. Auth resolves the sub-key
-// for pricing; no proxy rate limiter since nothing is forwarded upstream.
+// Registered before /v1/* so the catch-all doesn't swallow it.
 app.post("/v1/pixel", authMiddleware, pixelHandler);
 
 app.all("/v1/*", authMiddleware, rateLimitMiddleware, proxyHandler);

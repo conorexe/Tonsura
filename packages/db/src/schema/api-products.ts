@@ -13,8 +13,6 @@ import type { TransformConfig } from "@tonsura/validators";
 import { masterKeys } from "./master-keys";
 import { projects } from "./projects";
 
-// A priced binding of one master key (upstream) — optionally into a feature
-// (project), where its pathAlias makes it routable by feature keys.
 export const apiProducts = pgTable(
   "api_products",
   {
@@ -26,15 +24,10 @@ export const apiProducts = pgTable(
     name: text("name").notNull(),
     description: text("description"),
     slug: text("slug").notNull().unique(),
-    // The URL segment that selects this root-API binding within a feature, e.g.
-    // a "voice" feature can bind OpenAI under alias "chat" and ElevenLabs under
-    // "tts". A call to /v1/{pathAlias}/... routes here. NULL = not alias-routable.
+    // NULL = not alias-routable.
     pathAlias: text("path_alias"),
-    // token | character | request | record — the unit the price/cost columns
-    // below meter on.
     unitType: text("unit_type").notNull().default("token"),
-    // Price/cost are per *million units* of unitType (not tokens specifically),
-    // so per-request APIs and per-token LLMs share one schema.
+    // Per million units of unitType (token | character | request | record).
     pricePerMillionTokens: numeric("price_per_million_tokens", {
       precision: 12,
       scale: 6,
@@ -51,7 +44,6 @@ export const apiProducts = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => ({
-    // One alias per feature (project), so /v1/{alias}/... resolves unambiguously.
     projectAliasIdx: uniqueIndex("api_products_project_alias_idx").on(
       t.projectId,
       t.pathAlias

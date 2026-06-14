@@ -23,8 +23,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const db = getDb();
 
-  // Feature key: authorize a whole project (feature). Resolve a primary
-  // productId (preferring an aliased product) for the sub_keys row.
   let productId = body.data.productId;
   let projectId: string | undefined;
   if (body.data.projectId) {
@@ -39,8 +37,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-    // A feature key routes by path alias, so at least one product must carry one
-    // — otherwise the key would authorize the feature but no call could resolve.
     if (!products.some((p) => p.pathAlias)) {
       return NextResponse.json(
         {
@@ -76,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     expiresAt: body.data.expiresAt ? new Date(body.data.expiresAt) : undefined,
   });
 
-  // Return plaintext key ONCE — never stored
+  // Plaintext returned once. Not stored.
   return NextResponse.json({ ...subKey, plainKey }, { status: 201 });
 }
 
@@ -87,7 +83,5 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
 
   const db = getDb();
   await revokeSubKey(db, id);
-
-  // The gateway's in-process meta cache holds revoked keys for up to 60s.
   return NextResponse.json({ ok: true });
 }

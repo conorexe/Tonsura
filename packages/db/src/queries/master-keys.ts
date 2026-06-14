@@ -10,7 +10,7 @@ export async function createMasterKey(
   return row;
 }
 
-// Never selects encryptedKey — the ciphertext stays out of list views.
+// Excludes encryptedKey.
 export async function listMasterKeys(db: DrizzleClient) {
   return db
     .select({
