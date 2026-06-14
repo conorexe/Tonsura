@@ -9,7 +9,6 @@ see margin per pricing tier. Runs on your own box, against your own Postgres.
 - Node 20+, pnpm 9+ (`corepack enable`)
 - Postgres 14+ (local, Docker, RDS, Supabase, Neon, whatever)
 
-That's it. No Redis, no ClickHouse, no third-party auth.
 
 ## Install
 
@@ -58,7 +57,7 @@ Sign in at the dashboard with `ADMIN_PASSWORD`.
 1. Add an upstream credential under **API Keys**. OpenAI, Anthropic,
    ElevenLabs, or anything else (give it a base URL and tell it how the API
    wants its auth header).
-2. Create a **Feature** - just a group of upstreams behind one of your product
+2. Create a **Feature** which is just a group of upstreams behind one of your product
    features (e.g. `assistant`).
 3. Add a **Product** to the feature, with a path alias (e.g. `chat`), a unit
    type, and cost+price per million units.
